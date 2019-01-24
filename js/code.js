@@ -4,6 +4,7 @@ var lives = STARTING_LIVES;
 var onRestartScreen = false;
 
 $( document ).ready(function() {
+    /* //TODO cookie support
     if(Cookies.get('highScore') === undefined) {
         Cookies.set('highScore', '0');
     }
@@ -11,7 +12,7 @@ $( document ).ready(function() {
         highScore = parseint(Cookies.get('highScore'));
         $( '#high-score' ).html('High Score: ' + highScore);
         alert(highScore);
-    }
+    }*/
     $( '#next').hide();
     var randLang = newQuestion();
     $( '#next' ).click(function() {
@@ -74,7 +75,7 @@ function setLives() {
 }
 
 function setHighScore() {
-    Cookies.set('highScore', highScore.toString());
+    // Cookies.set('highScore', highScore.toString());
     $( '#high-score' ).html('High Score: ' + highScore);
 }
 
