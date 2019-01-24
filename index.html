@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <title>The Great (Text) Language Game</title>
+        <meta charset="UTF-8"> 
+        <link href="site.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+			    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+			    crossorigin="anonymous"></script>
+        <script src="js/consts.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+        <script src="js/code.js"></script>
+    </head>
+    <body class="dark">
+        <div id="title">
+                <h1>The Great (Text) Language Game</h1>
+        </div>
+        <div id="header">
+            <div id="score"><p>Score: 0</p></div>
+            <div id="lives"><p>Lives: 3</p></div>
+            <div id="high-score"><p>High Score: 0</p></div>
+        <div id="main" class="dark">
+            <div id="text">Text goes here.</div>
+
+            <div id="buttons">
+                <span><button id="next", class="dark">Next Question →</btton></span>
+                <span><button id="option0" class="dark">Option 1</button></span>
+                <span><button id="option1" class="dark">Option 2</button></span>
+                <span><button id="option2" class="dark">Option 3</button></span>
+                <span><button id="option3" class="dark">Option 4</button></span>
+                <span><button id="option4" class="dark">Option 5</button></span>
+            </div>
+        </div>
+        <div id="footer">
+            <button onclick="toggleNightMode()">Night Mode</button>
+        </div>
+        
+    </body>
+</html>
