@@ -1,4 +1,6 @@
 body {
+    margin: auto;
+    max-width: 1000px;
     font-family: 'Courier New', Courier, monospace;
     color: rgb(30, 30, 30);
 }
@@ -31,7 +33,7 @@ button {
     text-decoration: none;
     background: #fff;
     color: rgb(30, 30, 30);
-    font-family: sans-serif;
+    font-family: 'Courier New', Courier, monospace;
     font-size: 1rem;
     cursor: pointer;
     text-align: center;
@@ -71,6 +73,11 @@ button.dark:hover {
     background: #303030;
 }
 
+header {
+    margin: auto;
+    max-width: 1000px;
+}
+
 #score, #lives, #high-score {
     display: inline-block;
     border-radius: 25px;
@@ -106,10 +113,20 @@ button.dark:hover {
 }
 
 #buttons span {
-    display:table-cell;
+    display: table-cell;
     text-align: center;
 }
 
 #footer {
     padding: 20px;
+}
+
+@media only screen and (max-width: 900px) {
+    #buttons span {
+        display: block;
+    }
+    
+    button {
+        float: left;
+    }
 }
