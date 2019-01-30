@@ -1,23 +1,62 @@
+const POINTS_PER_QUESTION = 100;
+const NUM_BUTTONS = 5;
+const STARTING_LIVES = 3;
+const TEXT_MIN = 200;
+const TEXT_MAX = 500;
+const LANGS = getJSONFile("https://api.myjson.com/bins/162ebs");
+const WIKIPEDIA_URL = "https://en.wikipedia.org";
+const EASY_LANGS = ["zh", "es", "en", "hi", "ar", "pt", "fr", "ru", "ja", "de"];
+const MED_LANGS = ["bn", "pa", "jv", "id", "te", "vi", "ko", "tr", "it", "th", "nl", "pl", "tl", "ga", "da", "el", "he", "fi"].concat(EASY_LANGS);
+const HARD_LANGS = ["mr", "ta", "ur", "gu", "fa", "ps", "kn", "ml", "su", "ha", "or", "my", "uk", "bh",
+                    "yo", "mai", "uz", "sd", "am", "ff", "ro", "om", "ig", "az", "ceb", "no", "sw", "eo", "la", "et", "lv", "lt"].concat(MED_LANGS);
+const VERY_HARD_LANGS = ["ku", "sh", "mg", "ne", "si", "zh", "km", "tk", "as", "so", "hu", "ny", "ak",
+                        "kk", "zu", "cs", "rw", "ht", "ilo", "qu", "rn", "sn", "ug", "xh", "be", "bal", "gom", "eu", "haw", "cy"].concat(HARD_LANGS);
+const DIFFICULTY_BUTTON_TEXT = ["Easy", "Medium", "Hard", "Very Hard", "Master"];
+const BAD_LANGS = ["bal", "khw", "bgn"]; // Languages that don't work.
+
+const LANGUAGE_POOLS = [EASY_LANGS, MED_LANGS, HARD_LANGS, VERY_HARD_LANGS, Object.keys(LANGS)];
+
+var screen = {
+    MENU: 1,
+    QUESTION: 2,
+    ANSWER: 3,
+    END: 4
+};
+
 var score = 0;
 var highScore = score;
 var lives = STARTING_LIVES;
-var onRestartScreen = false;
+var currScreen = screen.MENU;
+var currLangPool = EASY_LANGS;
+
+String.prototype.trunc =
+    function( n, useWordBoundary ){
+        if (this.length <= n) { return this; }
+            var subString = this.substr(0, n-1);
+            if(useWordBoundary) {
+                if(subString.lastIndexOf(' ') != -1) {
+                    return subString.substr(0, subString.lastIndexOf(' ')) + "&hellip;";
+                }
+            }
+        return substring + "&hellip;";
+    };
 
 $( document ).ready(function() {
-    /* //TODO cookie support
-    if(Cookies.get('highScore') === undefined) {
-        Cookies.set('highScore', '0');
+    if(localStorage.getItem("highScore") === null) {
+        localStorage.setItem("highScore", "0");
     }
     else {
-        highScore = parseint(Cookies.get('highScore'));
+        highScore = parseInt(localStorage.getItem("highScore"));
         $( '#high-score' ).html('High Score: ' + highScore);
-        alert(highScore);
-    }*/
-    $( '#next').hide();
-    var randLang = newQuestion();
+    }
+
+    var randLang;
+    var answerText;
+    initMenu();
+
     $( '#next' ).click(function() {
         if(lives === 0) {
-            if(!onRestartScreen) {
+            if(currScreen == screen.ANSWER) {
                 $( this ).html("New Game");
                 var message = 'You ran out of lives! Your score was ' + score + ". ";
                 if(score > highScore) {
@@ -26,45 +65,76 @@ $( document ).ready(function() {
                     message += "This is a new high score for you! "
                 }
                 message += "Would you like to play again?"
+                $( '#text' ).css("text-align", "center");
                 $( '#text' ).html(message);
-                
-                onRestartScreen = true;
+                currScreen = screen.END;
             }
             else {
-                $( this ).html("Next Question →");
-                $( this ).hide();
-                onRestartScreen = false;
-                score = 0;
-                lives = STARTING_LIVES;
-                setLives();
-                setScore();
-                randLang = newQuestion();
+                initMenu();
             }
         }
         else {
             $( this ).hide();
             randLang = newQuestion();
+            answerText = setAnswerText(randLang);
         }
     });
+
     for(var i = 0; i < NUM_BUTTONS; i++) {
         $( '#option' + i ).click(function() {
-            disableButtons();
-            $( '#next' ).show();
-            var randLangName = LANGS[randLang]['name']
-            var answerText = 'language was ' + randLangName;
-            if($( this ).text() == LANGS[randLang]['name']) {
-                score += POINTS_PER_QUESTION;
-                setScore();
-                $( '#text' ).html("<p id='answer'>Correct, " + answerText + '.</p>');
-            }
-            else {
-                lives -= 1;
-                setLives();
-                $( '#text' ).html("<p id='answer'>Incorrect, " + answerText + '.</p>');
+            switch(currScreen) {
+                case screen.MENU:
+                    currLangPool = getLangPool(this);
+                    $( '#next' ).html("Next Question →");
+                    $( '#next' ).hide();
+                    $( '#next' ).css("text-align", "left");
+                    randLang = newQuestion();
+                    answerText = setAnswerText(randLang);
+                    break;
+                case screen.QUESTION:
+                    hideButtons();
+                    if($( this ).text() == LANGS[randLang]['name']) {
+                        score += POINTS_PER_QUESTION;
+                        setScore();
+                        $( '#text' ).html("<p id='answer'>Correct, " + answerText + '.</p>');
+                    }
+                    else {
+                        lives--;
+                        setLives();
+                        $( '#text' ).html("<p id='answer'>Incorrect, " + answerText + '.</p>');
+                    }
+                    currScreen = screen.ANSWER;
+                    $( '#next' ).show();
+                    break;
+                case screen.ANSWER:
+                    // Option buttons should not be visible here.
+                    break;
+                case screen.END:
+                    // Option buttons should not be visible here.
+                    break;
             }
         });
     }
 });
+
+function getLangPool(button) {
+    return LANGUAGE_POOLS[parseInt($(button).attr("id").substr(-1))];
+}
+
+function initMenu() {
+    $( '#next' ).hide();
+    $( '#text' ).css('text-align', 'center');
+    $( '#text' ).text("Welcome to The Great Language (Text) Game! Select a difficulty to begin.");
+    lives = STARTING_LIVES;
+    score = 0;
+    setLives();
+    setScore();
+    for(var i = 0; i < NUM_BUTTONS; i++) {
+        $( '#option' + i ).html("<p>" + DIFFICULTY_BUTTON_TEXT[i] + "<br>(" + LANGUAGE_POOLS[i].length + " languages)</p>");
+    }
+    showButtons();
+    currScreen = screen.MENU;
+}
 
 function setScore() {
     $( '#score' ).html('Score: ' + score);
@@ -75,16 +145,32 @@ function setLives() {
 }
 
 function setHighScore() {
-    // Cookies.set('highScore', highScore.toString());
+    localStorage.setItem('highScore', highScore,toString());
     $( '#high-score' ).html('High Score: ' + highScore);
 }
 
-function newQuestion() {
-    var randLang = getRandLang();
-    getWikiArticle(randLang, 2);
-    setButtons(randLang);
-    enableButtons();
-    return randLang;
+function setAnswerText(randLang) {
+    try {
+        var randLangName = LANGS[randLang]['name'];
+        var langURL = WIKIPEDIA_URL + LANGS[randLang]['link'];
+        return 'language was <a href=' + langURL + ">" + randLangName + "</a>";
+    }
+    catch(err) {
+        console.log(randLang);
+        return randLang;
+    }
+}
+
+function hideButtons() {
+    for(var i = 0; i < NUM_BUTTONS; i++) {
+        $( "#option" + i ).hide();
+    }
+}
+
+function showButtons() {
+    for(var i = 0; i < NUM_BUTTONS; i++) {
+        $( "#option" + i ).show();
+    }
 }
 
 function setButtons(answerLang) {
@@ -92,20 +178,6 @@ function setButtons(answerLang) {
     buttonLangs = shuffle(buttonLangs);
     for(var i = 0; i < NUM_BUTTONS; i++) {
         $( "#option" + i ).text(LANGS[buttonLangs[i]]['name']);
-    }
-}
-
-function disableButtons() {
-    for(var i = 0; i < NUM_BUTTONS; i++) {
-        //$( "#option" + i ).prop("disabled", true);
-        $( "#option" + i ).hide();
-    }
-}
-
-function enableButtons() {
-    for(var i = 0; i < NUM_BUTTONS; i++) {
-        //$( "#option" + i ).prop("disabled", false);
-        $( "#option" + i ).show();
     }
 }
 
@@ -138,31 +210,62 @@ function shuffle(array) {
     return array;
 }
 
-function toggleNightMode() {
-    localStorage.setItem('mode', (localStorage.getItem('mode') || 'dark') === 'dark' ? 'light' : 'dark');
-    localStorage.getItem('mode') === 'dark' ? document.querySelector('body').classList.add('dark') : document.querySelector('body').classList.remove('dark');
+function newQuestion() {
+    $( '#text' ).hide();
+    $( '#text' ).css('text-align', 'left');
+    currScreen = screen.QUESTION;
+    var randLang = getRandLang();
+    getWikiText(randLang, 5);
+    $( '#text').show();
+    return randLang;
 }
 
 function getRandLang() {
-    var langCodes = Object.keys(LANGS);
-    return langCodes[Math.floor(Math.random() * langCodes.length)];
+    do {
+        var randLang = currLangPool[Math.floor(Math.random() * currLangPool.length)];
+    }
+    while(BAD_LANGS.includes(randLang));
+    return randLang;
 }
 
-function getWikiArticle(language, sentences) {
+function getWikiText(language, sentences) {
     var url = "https://" + language + ".wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&prop=extracts&exsentences=" + sentences + "&format=json&callback=?";
     $.ajax({
         type: "GET",
         url: url,
-        contentType: "application/json; charset=utf-8",
-        async: false,
+        contentType: "application/json; charset=utf-16",
         dataType: "json",
-        success: function (data) {
+        success: function(data) {
             var pages = data.query.pages;
-            var text = pages[ Object.keys(pages)[0] ].extract;
-            $( '#text' ).html(text);
-            //document.getElementById('text').innerHTML = "<p>" + text + "</p>";
-        },
-        error: function (errorMessage) {
+            var article = pages[ Object.keys(pages)[0] ].extract;
+            $( '#text' ).html(article.trunc(TEXT_MAX, true));
+            setButtons(language);
+            showButtons();
+            $( '#text' ).show()
         }
     });
+    return "Too many pongs";
+}
+
+function getJSONFile(url) {
+    var returnedData;
+    $.ajax({
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-16",
+        async: false,
+        dataType: "json",
+        success: function(data) {
+            console.log("From " + url + ": " + data);
+        }
+    }).done(function(data) {
+        returnedData = data;
+    });
+    return returnedData;
+}
+
+// TODO re-add night mode.
+function toggleNightMode() {
+    localStorage.setItem('mode', (localStorage.getItem('mode') || 'dark') === 'dark' ? 'light' : 'dark');
+    localStorage.getItem('mode') === 'dark' ? document.querySelector('body').classList.add('dark') : document.querySelector('body').classList.remove('dark');
 }
