@@ -127,6 +127,18 @@ header {
     }
     
     button {
-        float: left;
+        font-size: 5vw;
+    }
+
+    h1 {
+        font-size: 15vw;
+    }
+
+    p {
+        font-size: 5vw;
+    }
+
+    #main {
+        font-size: 5vw;
     }
 }
