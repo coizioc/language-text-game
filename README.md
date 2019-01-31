@@ -5,4 +5,4 @@ This is a simple game in which you guess what the language the text presented is
 **Todo (in no particular order)**:
 * Fix light/dark mode.
 * Make answer options "smarter" by grouping together more similar languages.
-* Ensure that the text generated is of a certain length.
+* Add high scores for different difficulty levels.
