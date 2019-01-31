@@ -121,9 +121,62 @@ header {
     padding: 20px;
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (min-width: 601px) and (max-width: 900px) {
+    #header {
+        font-size: 3vw;
+    }
+    
+    #buttons {
+        float: center;
+        text-align: center;
+        width: 80%;
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+    
+    #buttons span {
+        display: inline-block;
+    }
+    
+    body {
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+    
+    button {
+        font-size: 3vw;
+    }
+
+    h1 {
+        font-size: 4vw;
+    }
+
+    p {
+        font-size: 3vw;
+    }
+
+    #main {
+        font-size: 3vw;
+        width: 95%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    #header {
+        text-align: center;
+        font-size: 4vw;
+    }
+    
     #buttons span {
         display: block;
+        width: 80%;
+        margin-left: 10%;
+        margin-right: 10%;
+    }
+    
+    body {
+        width: 80%;
+        align-content: center;
     }
     
     button {
@@ -131,7 +184,7 @@ header {
     }
 
     h1 {
-        font-size: 15vw;
+        font-size: 7vw;
     }
 
     p {
@@ -140,5 +193,6 @@ header {
 
     #main {
         font-size: 5vw;
+        width: 95%;
     }
 }
