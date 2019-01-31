@@ -1,7 +1,7 @@
 const POINTS_PER_QUESTION = 100;
 const NUM_BUTTONS = 5;
 const STARTING_LIVES = 3;
-const TEXT_MIN = 200;
+const TEXT_MIN = 50;
 const TEXT_MAX = 500;
 const LANGS = getJSONFile("https://api.myjson.com/bins/162ebs");
 const WIKIPEDIA_URL = "https://en.wikipedia.org";
@@ -54,6 +54,17 @@ $( document ).ready(function() {
     var answerText;
     initMenu();
 
+    $( '#text-panic' ).click(function() {
+        if(currScreen == screen.QUESTION) {
+            if($( '#text' ).text().length < TEXT_MIN) {
+                resetQuestion(randLang);
+            }
+            else {
+                alert("The question is already a fair length. Please do not abuse this button.");
+            }
+        }
+    });
+
     $( '#next' ).click(function() {
         if(lives === 0) {
             if(currScreen == screen.ANSWER) {
@@ -93,6 +104,7 @@ $( document ).ready(function() {
                     break;
                 case screen.QUESTION:
                     hideButtons();
+                    $( '#text-panic' ).hide();
                     if($( this ).text() == LANGS[randLang]['name']) {
                         score += POINTS_PER_QUESTION;
                         setScore();
@@ -122,6 +134,7 @@ function getLangPool(button) {
 }
 
 function initMenu() {
+    $( '#text-panic' ).hide();
     $( '#next' ).hide();
     $( '#text' ).css('text-align', 'center');
     $( '#text' ).text("Welcome to The Great Language (Text) Game! Select a difficulty to begin.");
@@ -216,7 +229,17 @@ function newQuestion() {
     currScreen = screen.QUESTION;
     var randLang = getRandLang();
     getWikiText(randLang, 5);
-    $( '#text').show();
+    $( '#text' ).show();
+    $( '#text-panic' ).show();
+    return randLang;
+}
+
+function resetQuestion(randLang) {
+    $( '#text' ).hide();
+    $( '#text' ).css('text-align', 'left');
+    currScreen = screen.QUESTION;
+    getWikiText(randLang, 5);
+    $( '#text' ).show();
     return randLang;
 }
 
@@ -234,6 +257,7 @@ function getWikiText(language, sentences) {
         type: "GET",
         url: url,
         contentType: "application/json; charset=utf-16",
+        async: false,
         dataType: "json",
         success: function(data) {
             var pages = data.query.pages;
@@ -241,10 +265,10 @@ function getWikiText(language, sentences) {
             $( '#text' ).html(article.trunc(TEXT_MAX, true));
             setButtons(language);
             showButtons();
-            $( '#text' ).show()
+            $( '#text' ).show();
+            
         }
     });
-    return "Too many pongs";
 }
 
 function getJSONFile(url) {
