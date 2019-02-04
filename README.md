@@ -6,3 +6,5 @@ This is a simple game in which you guess what the language the text presented is
 * Fix light/dark mode.
 * Make answer options "smarter" by grouping together more similar languages.
 * Add high scores for different difficulty levels.
+
+This project is based off of the new defunt [Great Language Game](https://greatlanguagegame.com/).
