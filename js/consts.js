@@ -7,8 +7,7 @@ const getConsts = async function() {
     consts.TEXT_MIN = 50;
     consts.TEXT_MAX = 500;
 
-    let response = await fetch("/js/languages.json");
-    consts.LANGS = await response.json();
+    consts.LANGS = languages
 
     consts.WIKIPEDIA_URL = "https://en.wikipedia.org";
     consts.EASY_LANGS = ["zh", "es", "en", "hi", "ar", "pt", "fr", "ru", "ja", "de"];
